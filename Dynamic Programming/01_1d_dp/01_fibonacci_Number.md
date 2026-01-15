@@ -1,7 +1,3 @@
-
-
-
-
 # fibonacci number
 ## memoization
 ````java
