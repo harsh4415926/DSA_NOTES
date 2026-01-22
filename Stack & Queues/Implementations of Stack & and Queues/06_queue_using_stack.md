@@ -1,82 +1,154 @@
 # queue using stack 
+
+## first approach (enqueue is expensive )
 ````java
 import java.util.Stack;
 
-public class QueueUsingStack {
-    private Stack<Integer> stack1; // Input stack
-    private Stack<Integer> stack2; // Output stack
+public class QueueUsingStacks {
+    private Stack<Integer> s1;
+    private Stack<Integer> s2;
 
-    public QueueUsingStack() {
-        stack1 = new Stack<>();
-        stack2 = new Stack<>();
+    public QueueUsingStacks() {
+        s1 = new Stack<>();
+        s2 = new Stack<>();
     }
 
-    // 1. ENQUEUE: Simply push to the input stack
+    // Enqueue operation
+    // Time Complexity: O(n) - We move elements to s2 and back to s1
+    public void enQueue(int x) {
+        // 1. Move all elements from s1 to s2
+        while (!s1.isEmpty()) {
+            s2.push(s1.pop());
+        }
+
+        // 2. Push item into s1
+        s1.push(x);
+
+        // 3. Push everything back to s1
+        while (!s2.isEmpty()) {
+            s1.push(s2.pop());
+        }
+        
+        System.out.println("Enqueued: " + x);
+    }
+
+    // Dequeue operation
     // Time Complexity: O(1)
-    public void enqueue(int value) {
-        stack1.push(value);
-        System.out.println("Enqueued: " + value);
-    }
-
-    // 2. DEQUEUE: Pop from output stack
-    // Time Complexity: Amortized O(1)
-    public int dequeue() {
-        if (isEmpty()) {
-            System.out.println("Queue Underflow");
+    public int deQueue() {
+        if (s1.isEmpty()) {
+            System.out.println("Queue is Empty");
             return -1;
         }
 
-        // If output stack is empty, move everything from input stack to it
-        if (stack2.isEmpty()) {
-            while (!stack1.isEmpty()) {
-                stack2.push(stack1.pop());
-            }
-        }
-
-        return stack2.pop();
+        // The top of s1 is always the front of the queue
+        int popped = s1.pop();
+        return popped;
     }
-
-    // 3. PEEK: View front element
-    // Time Complexity: Amortized O(1)
+    
+    // Peek operation (view front element)
+    // Time Complexity: O(1)
     public int peek() {
-        if (isEmpty()) {
-            System.out.println("Queue is empty");
+        if (s1.isEmpty()) {
+            System.out.println("Queue is Empty");
+            return -1;
+        }
+        return s1.peek();
+    }
+
+    // Helper to check if queue is empty
+    public boolean isEmpty() {
+        return s1.isEmpty();
+    }
+
+    // Main method for testing
+    public static void main(String[] args) {
+        QueueUsingStacks q = new QueueUsingStacks();
+        
+        q.enQueue(10);
+        q.enQueue(20);
+        q.enQueue(30);
+
+        System.out.println("Dequeued: " + q.deQueue()); // Should print 10
+        System.out.println("Front element is: " + q.peek()); // Should print 20
+        System.out.println("Dequeued: " + q.deQueue()); // Should print 20
+    }
+}
+````
+
+## second approach (dequeue and front is expensive)
+````java
+import java.util.Stack;
+
+public class QueueUsingStacks {
+    private Stack<Integer> inputStack;  // s1
+    private Stack<Integer> outputStack; // s2
+
+    public QueueUsingStacks() {
+        inputStack = new Stack<>();
+        outputStack = new Stack<>();
+    }
+
+    // Enqueue operation
+    // Time Complexity: O(1)
+    public void enQueue(int x) {
+        inputStack.push(x);
+        System.out.println("Enqueued: " + x);
+    }
+
+    // Dequeue operation
+    // Time Complexity: Amortized O(1), Worst Case O(n)
+    public int deQueue() {
+        // If both stacks are empty, the queue is empty
+        if (outputStack.isEmpty() && inputStack.isEmpty()) {
+            System.out.println("Queue is Empty");
             return -1;
         }
 
-        // Same logic as dequeue: ensure stack2 has the data
-        if (stack2.isEmpty()) {
-            while (!stack1.isEmpty()) {
-                stack2.push(stack1.pop());
+        // If outputStack is empty, move elements from inputStack
+        if (outputStack.isEmpty()) {
+            while (!inputStack.isEmpty()) {
+                outputStack.push(inputStack.pop());
             }
         }
 
-        return stack2.peek();
+        // Return the top of outputStack
+        return outputStack.pop();
     }
 
-    // 4. Utility: Check if both stacks are empty
+    // Peek operation
+    public int peek() {
+        if (outputStack.isEmpty() && inputStack.isEmpty()) {
+            System.out.println("Queue is Empty");
+            return -1;
+        }
+
+        if (outputStack.isEmpty()) {
+            while (!inputStack.isEmpty()) {
+                outputStack.push(inputStack.pop());
+            }
+        }
+        
+        return outputStack.peek();
+    }
+    
     public boolean isEmpty() {
-        return stack1.isEmpty() && stack2.isEmpty();
+        return inputStack.isEmpty() && outputStack.isEmpty();
     }
 
     public static void main(String[] args) {
-        QueueUsingStack queue = new QueueUsingStack();
-
-        queue.enqueue(10); // stack1: [10]
-        queue.enqueue(20); // stack1: [10, 20]
-        queue.enqueue(30); // stack1: [10, 20, 30]
-
-        // First dequeue triggers the transfer.
-        // stack1 becomes [], stack2 becomes [30, 20, 10]. 
-        // 10 is popped.
-        System.out.println("Dequeued: " + queue.dequeue()); 
-
-        // 20 is at top of stack2, so it is popped directly.
-        System.out.println("Dequeued: " + queue.dequeue()); 
-
-        queue.enqueue(40); // stack1: [40], stack2: [30] (remaining)
+        QueueUsingStacks q = new QueueUsingStacks();
         
-        System.out.println("Current Front: " + queue.peek()); // Returns 30
+        q.enQueue(1);
+        q.enQueue(2);
+        q.enQueue(3);
+
+        System.out.println("Dequeued: " + q.deQueue()); // Prints 1
+        System.out.println("Dequeued: " + q.deQueue()); // Prints 2
+        
+        q.enQueue(4); // Push to input stack
+        
+        System.out.println("Dequeued: " + q.deQueue()); // Prints 3 (from output stack)
+        System.out.println("Dequeued: " + q.deQueue()); // Prints 4 (transfer happens here)
     }
 }
 ````
