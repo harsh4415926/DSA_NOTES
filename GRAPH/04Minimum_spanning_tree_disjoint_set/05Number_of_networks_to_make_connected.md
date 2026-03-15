@@ -36,86 +36,17 @@
 ## Java code
 
 ```java
-//dijoint set implementation
-class DisjointSet {
-    ArrayList<Integer> parent = new ArrayList<>();
-    ArrayList<Integer> rank = new ArrayList<>();
-    ArrayList<Integer> size = new ArrayList<>();
+public int makeConnected(int n, int[][] connections) {
 
-    DisjointSet(int n) {
-        for (int i = 0; i <= n; i++) {
-            parent.add(i);  // initially each node is its own leader
-            rank.add(0);    // for union by rank
-            size.add(1);    // for union by size
-        }
-    }
+    // At least (n - 1) cables are required to connect n nodes
+    if (connections.length < n - 1)
+        return -1;
+    
+    int provinces = findProvince(n, connections);
 
-    public int ulpar(int n) {
-        if (n == parent.get(n)) return n;
-        int up = ulpar(parent.get(n));
-        parent.set(n, up); // path compression
-        return up;
-    }
-
-    public void unionByRank(int u, int v) {
-        int ulp_u = ulpar(u);
-        int ulp_v = ulpar(v);
-        if (ulp_u == ulp_v) return;
-
-        if (rank.get(ulp_u) < rank.get(ulp_v)) {
-            parent.set(ulp_u, ulp_v);
-        } else if (rank.get(ulp_v) < rank.get(ulp_u)) {
-            parent.set(ulp_v, ulp_u);
-        } else {
-            parent.set(ulp_u, ulp_v);
-            rank.set(ulp_v, rank.get(ulp_v) + 1);
-        }
-    }
-
-    public void unionBySize(int u, int v) {
-        int ulp_u = ulpar(u);
-        int ulp_v = ulpar(v);
-        if (ulp_u == ulp_v) return;
-
-        if (size.get(ulp_u) < size.get(ulp_v)) {
-            parent.set(ulp_u, ulp_v);
-            size.set(ulp_v, size.get(ulp_v) + size.get(ulp_u));
-        } else {
-            parent.set(ulp_v, ulp_u);
-            size.set(ulp_u, size.get(ulp_u) + size.get(ulp_v));
-        }
-    }
+    // To connect 'provinces' components, we need (provinces - 1) operations
+    return provinces - 1;
 }
 
-//actual problem
-class Solution {
-    public int makeConnected(int n, int[][] connections) {
-        DisjointSet ds = new DisjointSet(n);
-        int freeEdges = 0;
-
-        // Step 1: Union nodes if not already connected, else count free edges
-        for (int i = 0; i < connections.length; i++) {
-            int u = connections[i][0];
-            int v = connections[i][1];
-
-            if (ds.ulpar(u) == ds.ulpar(v)) {
-                freeEdges++; // extra cable
-                continue;
-            }
-            ds.unionBySize(u, v);
-        }
-
-        // Step 2: Count number of components
-        int component = 0;
-        for (int i = 0; i < n; i++) {
-            if (ds.parent.get(i) == i) component++;
-        }
-
-        // Step 3: Compute operations required
-        int connectionsRequired = component - 1;
-        if (freeEdges < connectionsRequired) return -1;
-        else return connectionsRequired;
-    }
-}
 ```
 !

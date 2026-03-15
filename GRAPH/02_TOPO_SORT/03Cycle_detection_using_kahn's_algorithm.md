@@ -15,6 +15,8 @@ You are given V vertices and a list of directed edges. Return true if the graph 
    were never reached (cycle exists). Otherwise, the graph is acyclic.
 
 ## Code
+````java
+
 class Solution {
 public boolean isCyclic(int V, int[][] edges) {
 List<List<Integer>> adj = new ArrayList<>();
@@ -56,4 +58,4 @@ adj.get(edges[i][0]).add(edges[i][1]);
 ## Complexity
 - Time: O(V + E) — building adjacency + processing each edge once.
 - Space: O(V + E) — adjacency list + indegree array + queue.
-
+````
