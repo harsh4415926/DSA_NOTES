@@ -1,5 +1,6 @@
 # Problem: Union of Two Sorted Arrays
 Given two arrays, a and b, both sorted in non-decreasing order, your task is to find the union of these two arrays. The union should be a list of all the distinct elements from both arrays, and the resulting list should also be sorted.
+* this is different from mergin operation since we need to keep only distinct elements
 
 Example: Input: a = [1, 2, 3, 4, 5] b = [1, 2, 3, 6, 7]
 
