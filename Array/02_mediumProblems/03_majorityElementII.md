@@ -13,69 +13,48 @@ Input: nums = [1, 1, 1, 3, 3, 2, 2, 2] Output: [1, 2]
 ## by moore's voting algorithm
 ````java
 class Solution {
-    /**
-     * Finds all elements that appear more than n/3 times.
-     * @param nums The input array.
-     * @return A list of the majority elements.
-     */
     public List<Integer> majorityElement(int[] nums) {
         int n = nums.length;
 
-        // Boyer-Moore Voting Algorithm (Extended for two candidates)
-        // We can have at most two elements that appear > n/3 times.
-        int cand1 = nums[0];
-        int cand2 = nums[0]; // Can be initialized to anything, will be overwritten.
-        int count1 = 0;
-        int count2 = 0;
+        // Step 1: Find candidates
+        int candidate1 = 0, candidate2 = 0;
+        int count1 = 0, count2 = 0;
 
-        // Pass 1: Find the two potential candidates
-        for (int i = 0; i < n; i++) {
-            if (nums[i] == cand1) {
+        for (int num : nums) {
+            if (candidate1 == num) {
                 count1++;
-            } else if (nums[i] == cand2) {
+            } else if (candidate2 == num) {
                 count2++;
             } else if (count1 == 0) {
-                // First candidate is voted out, pick a new one
-                cand1 = nums[i];
+                candidate1 = num;
                 count1 = 1;
             } else if (count2 == 0) {
-                // Second candidate is voted out, pick a new one
-                cand2 = nums[i];
+                candidate2 = num;
                 count2 = 1;
             } else {
-                // Current element matches neither, "vote" against both
                 count1--;
                 count2--;
             }
         }
-            
-        // Pass 2: Verify the candidates
-        // The first pass only gives us *potential* candidates.
-        // We must re-count their actual occurrences.
+
+        // Step 2: Verify candidates
         count1 = 0;
         count2 = 0;
-        for (int i = 0; i < n; i++) {
-            if (nums[i] == cand1) {
-                count1++;
-            } else if (nums[i] == cand2) {
-                count2++;
-            }
-        }
-                
-        List<Integer> ans = new ArrayList<>();
 
-        // Check if the first candidate is a majority element
-        if (count1 > n / 3) {
-            ans.add(cand1);
+        for (int num : nums) {
+            if (num == candidate1) count1++;
+            else if (num == candidate2) count2++;
         }
-        
-        // Check the second candidate, ensuring it's not the same as the first
-        if (count2 > n / 3 && cand2 != cand1) {
-            ans.add(cand2);
-        }
-        
-        return ans;
 
+        // Step 3: Add valid results
+        List<Integer> result = new ArrayList<>();
+
+        if (count1 > n / 3) result.add(candidate1);
+        if (count2 > n / 3) result.add(candidate2);
+
+        return result;
+    }
+}
         // Time Complexity: O(N)
         // - We have two separate loops, each running 'n' times.
         // - O(N) + O(N) = O(N).
@@ -83,6 +62,6 @@ class Solution {
         // Space Complexity: O(1)
         // - We only use a few constant-space variables.
         // - The 'ans' list will have at most 2 elements, which is O(1).
-    }
-}
+    
+
 ````
