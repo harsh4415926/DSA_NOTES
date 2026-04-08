@@ -7,37 +7,30 @@ Example: Input: nums = [1, 3, 2, 3, 1] Output: 2 Explanation: The reverse pairs 
 
 ---
 ````java
+import java.util.*;
+
 class Solution {
-    int count = 0; // Global counter for reverse pairs
+    int count;
 
-    /**
-     * Merges two sorted subarrays and counts reverse pairs between them.
-     * The first subarray is arr[low...mid]
-     * The second subarray is arr[mid+1...high]
-     * @param arr The main array.
-     * @param low The starting index of the first subarray.
-     * @param mid The ending index of the first subarray.
-     * @param high The ending index of the second subarray.
-     */
     public void merge(int[] arr, int low, int mid, int high) {
-        // --- Start of Reverse Pair Counting ---
-        int j = mid + 1;
-        for (int i = low; i <= mid; i++) {
-            // Find the first j such that arr[i] <= 2*arr[j]
-            // We use 2L to prevent integer overflow during multiplication.
-            while (j <= high && arr[i] > 2L * arr[j]) {
-                j++;
-            }
-            // All elements from (mid+1) to (j-1) satisfy the condition.
-            count += j - (mid + 1);
-        }
-        // --- End of Reverse Pair Counting ---
+        int i = low;      // Pointer for the first half
+        int j = mid + 1;  // Pointer for the second half
 
-        // --- Standard Merge Sort Logic ---
-        int i = low;
-        j = mid + 1; // Reset j for the merge step
+        // Count reverse pairs
+        while (i <= mid && j <= high) {
+            if ((long) arr[i] > 2L * arr[j]) {
+                count += (mid - i + 1);
+                j++;
+            } else {
+                i++;
+            }
+        }
+
         List<Integer> temp = new ArrayList<>();
-        
+        i = low;
+        j = mid + 1;
+
+        // Merge step
         while (i <= mid && j <= high) {
             if (arr[i] <= arr[j]) {
                 temp.add(arr[i]);
@@ -47,60 +40,39 @@ class Solution {
                 j++;
             }
         }
-        
+
+        // Remaining elements
         while (i <= mid) {
             temp.add(arr[i]);
             i++;
         }
-        
+
         while (j <= high) {
             temp.add(arr[j]);
             j++;
         }
-        
-        // Copy sorted elements back to the original array
+
+        // Copy back to original array
         for (i = low; i <= high; i++) {
             arr[i] = temp.get(i - low);
         }
     }
 
-    /**
-     * Recursive function to sort the array and count reverse pairs.
-     * @param low The starting index of the segment.
-     * @param high The ending index of the segment.
-     * @param arr The array.
-     */
     public void mergesort(int low, int high, int[] arr) {
-        if (low >= high) return; // Base case
-        
-        int mid = (low + high) / 2;
-        
-        mergesort(low, mid, arr);     // Sort and count in left half
-        mergesort(mid + 1, high, arr); // Sort and count in right half
-        merge(arr, low, mid, high);   // Merge and count split-pairs
+        if (low >= high) return;
+
+        int mid = low + (high - low) / 2;
+
+        mergesort(low, mid, arr);
+        mergesort(mid + 1, high, arr);
+        merge(arr, low, mid, high);
     }
 
-  /**
-     * Entry point for the reverse pairs counting algorithm.
-     * @param nums The array to process.
-     * @return The total number of reverse pairs.
-     */
-    public int reversePairs(int[] nums) {
-        int n = nums.length;
-        count = 0; // Reset global counter
-        mergesort(0, n - 1, nums);
+    public int reversePairs(int[] arr) {
+        int n = arr.length;
+        count = 0;
+        mergesort(0, n - 1, arr);
         return count;
-
-        // Time Complexity: O(N log N)
-        // - The 'mergesort' divides the array log N times.
-        // - The 'merge' function has two parts:
-        //   1. The reverse pair counting: O(N)
-        //   2. The standard merge: O(N)
-        // - Total complexity remains O(N log N).
-        
-        // Space Complexity: O(N)
-        // - Required for the temporary 'ArrayList' during the merge step.
     }
 }
-
 ````
